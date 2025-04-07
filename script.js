@@ -13,21 +13,10 @@ function initApp() {
     isTelegram = true;
     Telegram.WebApp.expand();
     Telegram.WebApp.MainButton.hide();
-    greetUser(Telegram.WebApp.initDataUnsafe?.user);
   }
   setupButtons();
   createScanOverlay();
   startScanner();
-}
-
-/**
- * Приветствие пользователя
- */
-function greetUser(user) {
-  if (user) {
-    document.getElementById('user-greeting').textContent = 
-      `Привет, ${user.first_name || 'пользователь'}!`;
-  }
 }
 
 /**
