@@ -79,18 +79,27 @@ function startScanner() {
  * Запрос доступа к камере и запуск сканера
  */
 function requestCameraAccess(config) {
-  navigator.mediaDevices.getUserMedia({ 
-    video: { facingMode: currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } }
-  })
-  .then(stream => {
-    stream.getTracks().forEach(track => track.stop());
-    return html5QrCode.start({ facingMode: currentCamera }, config, onScanSuccess, onScanError);
-  })
-  .then(() => {
-    isScanning = true;
-    updateUI();
-  })
-  .catch(handleCameraError);
+  navigator.permissions.query({ name: 'camera' }).then(permissionStatus => {
+    if (permissionStatus.state === 'denied') {
+      displayError('Доступ к камере запрещен. Разрешите доступ в настройках браузера.');
+      return;
+    }
+
+    navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } }
+    })
+    .then(stream => {
+      stream.getTracks().forEach(track => track.stop());
+      return html5QrCode.start({ facingMode: currentCamera }, config, onScanSuccess, onScanError);
+    })
+    .then(() => {
+      isScanning = true;
+      updateUI();
+    })
+    .catch(handleCameraError);
+  }).catch(() => {
+    displayError('Не удалось запросить разрешение на доступ к камере.');
+  });
 }
 
 /**
