@@ -79,26 +79,41 @@ function startScanner() {
  * Запрос доступа к камере и запуск сканера
  */
 function requestCameraAccess(config) {
-  navigator.permissions.query({ name: 'camera' }).then(permissionStatus => {
-    if (permissionStatus.state === 'denied') {
-      displayError('Доступ к камере запрещен. Разрешите доступ в настройках браузера.');
-      return;
-    }
+  // Проверяем поддержку API разрешений
+  if (navigator.permissions) {
+    navigator.permissions.query({ name: 'camera' }).then(permissionStatus => {
+      if (permissionStatus.state === 'denied') {
+        displayError('Доступ к камере запрещен. Разрешите доступ в настройках браузера.');
+        return;
+      }
+      startCamera(config);
+    }).catch(() => {
+      // Если API разрешений недоступен, пробуем запустить камеру напрямую
+      startCamera(config);
+    });
+  } else {
+    // Если API разрешений не поддерживается, пробуем запустить камеру напрямую
+    startCamera(config);
+  }
+}
 
-    navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } }
-    })
-    .then(stream => {
-      stream.getTracks().forEach(track => track.stop());
-      return html5QrCode.start({ facingMode: currentCamera }, config, onScanSuccess, onScanError);
-    })
-    .then(() => {
-      isScanning = true;
-      updateUI();
-    })
-    .catch(handleCameraError);
-  }).catch(() => {
-    displayError('Не удалось запросить разрешение на доступ к камере.');
+/**
+ * Запуск камеры
+ */
+function startCamera(config) {
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } }
+  })
+  .then(stream => {
+    stream.getTracks().forEach(track => track.stop());
+    return html5QrCode.start({ facingMode: currentCamera }, config, onScanSuccess, onScanError);
+  })
+  .then(() => {
+    isScanning = true;
+    updateUI();
+  })
+  .catch(error => {
+    handleCameraError(error);
   });
 }
 
@@ -161,12 +176,15 @@ function onScanError(error) {
  */
 function handleCameraError(error) {
   console.error('Camera Error:', error);
-  const message = error.name === 'NotAllowedError' 
-    ? 'Разрешите доступ к камере в настройках браузера' 
-    : error.message.includes('facingMode') 
-      ? 'Не удалось выбрать камеру. Попробуйте переключить камеру' 
-      : 'Ошибка доступа к камере';
-  if (error.message.includes('facingMode')) currentCamera = 'user';
+  let message = 'Ошибка доступа к камере.';
+  if (error.name === 'NotAllowedError' || error.name === 'SecurityError') {
+    message = 'Доступ к камере запрещен. Разрешите доступ в настройках браузера.';
+  } else if (error.name === 'NotFoundError') {
+    message = 'Камера не найдена. Убедитесь, что устройство имеет камеру.';
+  } else if (error.message.includes('facingMode')) {
+    message = 'Не удалось выбрать камеру. Попробуйте переключить камеру.';
+    currentCamera = 'user';
+  }
   displayError(message);
 }
 
