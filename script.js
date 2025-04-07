@@ -1,38 +1,207 @@
-function docReady(fn) {
-    // see if DOM is already available
-    if (document.readyState === "complete" || document.readyState === "interactive") {
-        // call on next available tick
-        setTimeout(fn, 1);
-    } else {
-        document.addEventListener("DOMContentLoaded", fn);
-    }
-} 
+// Глобальные переменные
+let html5QrCode;
+let currentCamera = 'environment';
+let scanResults = [];
+let isTelegram = false;
+let isScanning = false;
 
-docReady(function() {
-    var resultContainer = document.getElementById('qr-reader-results');
-    var lastResult, countResults = 0;
-    
-    var html5QrcodeScanner = new Html5QrcodeScanner(
-        "qr-reader", { fps: 10, qrbox: 250 });
-    
-    function onScanSuccess(decodedText, decodedResult) {
-        if (decodedText !== lastResult) {
-            ++countResults;
-            lastResult = decodedText;
-            console.log(`Scan result = ${decodedText}`, decodedResult);
- 
-            resultContainer.innerHTML += `<div>[${countResults}] - ${decodedText}</div>`;
-            
-            // Optional: To close the QR code scannign after the result is found
-            html5QrcodeScanner.clear();
-        }
-    }
-    
-    // Optional callback for error, can be ignored.
-    function onScanError(qrCodeError) {
-        // This callback would be called in case of qr code scan error or setup error.
-        // You can avoid this callback completely, as it can be very verbose in nature.
-    }
-    
-    html5QrcodeScanner.render(onScanSuccess, onScanError);
-});
+/**
+ * Инициализация приложения
+ */
+function initApp() {
+  if (window.Telegram?.WebApp) {
+    isTelegram = true;
+    Telegram.WebApp.expand();
+    Telegram.WebApp.MainButton.hide();
+    greetUser(Telegram.WebApp.initDataUnsafe?.user);
+  }
+  setupButtons();
+  createScanOverlay();
+  startScanner();
+}
+
+/**
+ * Приветствие пользователя
+ */
+function greetUser(user) {
+  if (user) {
+    document.getElementById('user-greeting').textContent = 
+      `Привет, ${user.first_name || 'пользователь'}!`;
+  }
+}
+
+/**
+ * Настройка обработчиков кнопок
+ */
+function setupButtons() {
+  const buttonActions = {
+    'toggle-camera': toggleCamera,
+    'stop-scan': stopScanner,
+    'start-scan': startScanner,
+    'send-result': sendResults
+  };
+  Object.entries(buttonActions).forEach(([id, action]) => {
+    document.getElementById(id).addEventListener('click', action);
+  });
+  if (isTelegram) Telegram.WebApp.MainButton.onClick(sendResults);
+}
+
+/**
+ * Создает рамку сканирования с угловыми метками
+ */
+function createScanOverlay() {
+  const overlay = document.createElement('div');
+  overlay.className = 'scan-overlay';
+  ['tl', 'tr', 'bl', 'br'].forEach(pos => {
+    const corner = document.createElement('div');
+    corner.className = `scan-corner scan-corner-${pos}`;
+    overlay.appendChild(corner);
+  });
+  document.getElementById('qr-reader').appendChild(overlay);
+}
+
+/**
+ * Запуск сканера
+ */
+function startScanner() {
+  if (isScanning) return;
+  html5QrCode = new Html5Qrcode('qr-reader');
+  const config = { 
+    fps: 10,
+    qrbox: { width: 250, height: 250 },
+    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+    aspectRatio: 1.0
+  };
+  requestCameraAccess(config);
+}
+
+/**
+ * Запрос доступа к камере и запуск сканера
+ */
+function requestCameraAccess(config) {
+  navigator.mediaDevices.getUserMedia({ 
+    video: { facingMode: currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } }
+  })
+  .then(stream => {
+    stream.getTracks().forEach(track => track.stop());
+    return html5QrCode.start({ facingMode: currentCamera }, config, onScanSuccess, onScanError);
+  })
+  .then(() => {
+    isScanning = true;
+    updateUI();
+  })
+  .catch(handleCameraError);
+}
+
+/**
+ * Остановка сканера
+ */
+function stopScanner() {
+  if (!isScanning || !html5QrCode) return;
+  html5QrCode.stop().then(() => {
+    isScanning = false;
+    updateUI();
+  }).catch(err => console.error("Ошибка при остановке:", err));
+}
+
+/**
+ * Переключение между камерами
+ */
+function toggleCamera() {
+  stopScanner();
+  currentCamera = currentCamera === 'environment' ? 'user' : 'environment';
+  setTimeout(startScanner, 300);
+}
+
+/**
+ * Обработка успешного сканирования
+ */
+function onScanSuccess(decodedText) {
+  if (scanResults.includes(decodedText)) return;
+  scanResults.push(decodedText);
+  updateResults(decodedText);
+  if (isTelegram) updateTelegramButton();
+}
+
+/**
+ * Обновление результатов сканирования
+ */
+function updateResults(decodedText) {
+  const resultContainer = document.getElementById('qr-reader-results');
+  resultContainer.innerHTML += `<div>${scanResults.length}. ${decodedText}</div>`;
+  document.getElementById('send-result').style.display = 'block';
+}
+
+/**
+ * Обновление кнопки Telegram
+ */
+function updateTelegramButton() {
+  Telegram.WebApp.MainButton.setText(`Отправить (${scanResults.length})`);
+  Telegram.WebApp.MainButton.show();
+}
+
+/**
+ * Обработка ошибок сканирования
+ */
+function onScanError(error) {
+  console.warn('Ошибка сканирования:', error);
+}
+
+/**
+ * Обработка ошибок камеры
+ */
+function handleCameraError(error) {
+  console.error('Camera Error:', error);
+  const message = error.name === 'NotAllowedError' 
+    ? 'Разрешите доступ к камере в настройках браузера' 
+    : error.message.includes('facingMode') 
+      ? 'Не удалось выбрать камеру. Попробуйте переключить камеру' 
+      : 'Ошибка доступа к камере';
+  if (error.message.includes('facingMode')) currentCamera = 'user';
+  displayError(message);
+}
+
+/**
+ * Отображение ошибки
+ */
+function displayError(message) {
+  const resultContainer = document.getElementById('qr-reader-results');
+  resultContainer.innerHTML = `<div class="error">${message}</div>`;
+  isScanning = false;
+  updateUI();
+}
+
+/**
+ * Обновление интерфейса
+ */
+function updateUI() {
+  document.body.classList.toggle('scanner-active', isScanning);
+  document.body.classList.toggle('scanner-inactive', !isScanning);
+}
+
+/**
+ * Отправка результатов
+ */
+function sendResults() {
+  if (scanResults.length === 0) return;
+  const resultsText = scanResults.join('\n');
+  if (isTelegram) {
+    Telegram.WebApp.sendData(resultsText);
+    //Telegram.WebApp.close();
+  } else {
+    alert(`Результаты:\n${resultsText}`);
+    resetResults();
+  }
+}
+
+/**
+ * Сброс результатов
+ */
+function resetResults() {
+  scanResults = [];
+  document.getElementById('qr-reader-results').innerHTML = '';
+  document.getElementById('send-result').style.display = 'none';
+}
+
+// Запускаем приложение после загрузки DOM
+document.addEventListener('DOMContentLoaded', initApp);

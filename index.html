@@ -1,11 +1,35 @@
-<html>
-  <head>
-    <title>Html-Qrcode Demo</title>
-  <body>
-    <div id="qr-reader" style="width:500px"></div>
-    <div id="qr-reader-results"></div>
-  </body>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR/Barcode Scanner</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔍 Сканер QR/штрих-кодов</h1>
+      <p id="user-greeting"></p>
+    </header>
+    
+    <main>
+      <section id="scanner-container">
+        <div id="qr-reader"></div>
+      </section>
+      
+      <section id="qr-reader-results" class="results"></section>
+      
+      <section class="scan-controls">
+        <button id="toggle-camera">♻ Переключить камеру</button>
+        <button id="stop-scan">⏹ Остановить сканирование</button>
+        <button id="start-scan">▶ Начать сканирование</button>
+        <button id="send-result">Отправить результат</button>
+      </section>
+    </main>
+  </div>
   <script src="script.js"></script>
-  </head>
+</body>
 </html>
