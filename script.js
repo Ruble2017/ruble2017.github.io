@@ -206,7 +206,7 @@ function sendResults() {
   const resultsText = scanResults.join('\n');
   if (isTelegram) {
     Telegram.WebApp.sendData(resultsText);
-    Telegram.WebApp.close();
+    //Telegram.WebApp.close();
   } else {
     alert(`Результаты:\n${resultsText}`);
     resetResults();
