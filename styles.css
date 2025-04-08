@@ -89,7 +89,7 @@ h1 {
   border-left-width: var(--corner-width);
 }
 
-.scan-corner-tr {
+scan-corner-tr {
   top: -2px;
   right: -2px;
   border-top-width: var(--corner-width);
@@ -177,6 +177,37 @@ h1 {
 
 .scanner-inactive #start-scan {
   display: block;
+}
+
+.result-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: var(--tg-theme-secondary-bg-color, #eee);
+  border-radius: var(--button-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.result-panel span {
+  font-size: 14px;
+  color: var(--tg-theme-text-color, #333);
+}
+
+.delete-button {
+  background: #ff3333;
+  color: white;
+  border: none;
+  border-radius: var(--button-radius);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.delete-button:hover {
+  background: #cc0000;
 }
 
 @media (max-width: 600px) {

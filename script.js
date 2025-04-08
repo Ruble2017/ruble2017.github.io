@@ -141,8 +141,37 @@ function onScanSuccess(decodedText) {
  */
 function updateResults(decodedText) {
   const resultContainer = document.getElementById('qr-reader-results');
-  resultContainer.innerHTML += `<div>${scanResults.length}. ${decodedText}</div>`;
+
+  // Create a new result panel
+  const resultPanel = document.createElement('div');
+  resultPanel.className = 'result-panel';
+
+  // Add the scanned text
+  const resultText = document.createElement('span');
+  resultText.textContent = `${scanResults.length}. ${decodedText}`;
+  resultPanel.appendChild(resultText);
+
+  // Add a delete button
+  const deleteButton = document.createElement('button');
+  deleteButton.textContent = 'Удалить';
+  deleteButton.className = 'delete-button';
+  deleteButton.addEventListener('click', () => {
+    // Remove the result from the array and UI
+    const index = scanResults.indexOf(decodedText);
+    if (index > -1) {
+      scanResults.splice(index, 1);
+    }
+    resultPanel.remove();
+    updateTelegramButton();
+  });
+  resultPanel.appendChild(deleteButton);
+
+  // Append the result panel to the container
+  resultContainer.appendChild(resultPanel);
+
+  // Show the send button
   document.getElementById('send-result').style.display = 'block';
+  updateTelegramButton();
 }
 
 /**
@@ -157,7 +186,7 @@ function updateTelegramButton() {
  * Обработка ошибок сканирования
  */
 function onScanError(error) {
-  //console.warn('Ошибка сканирования:', error);
+  console.warn('Ошибка сканирования:', error);
 }
 
 /**
@@ -199,15 +228,22 @@ function updateUI() {
  * Отправка результатов
  */
 function sendResults() {
-
-  console.log('результат:', scanResults);
-
-  if (scanResults.length === 0) return;
+  console.log('Preparing to send results:', scanResults);
+  if (scanResults.length === 0) {
+    console.warn('No results to send.');
+    return;
+  }
   const resultsText = scanResults.join('\n');
   if (isTelegram) {
-    Telegram.WebApp.sendData(resultsText);
-    console.log('Отправлено в Telegram:', resultsText);
-    Telegram.WebApp.close();
+    try {
+      Telegram.WebApp.sendData(resultsText);
+      console.log('Results successfully sent to Telegram:', scanResults);
+      Telegram.WebApp.close();
+    } catch (error) {
+      console.error('Error sending results to Telegram:', error);
+    }
+    // Uncomment the following line if you want to close the WebApp after sending data
+    // Telegram.WebApp.close();
   } else {
     alert(`Результаты:\n${resultsText}`);
     resetResults();
@@ -218,6 +254,7 @@ function sendResults() {
  * Сброс результатов
  */
 function resetResults() {
+  console.log('Resetting results...');
   scanResults = [];
   document.getElementById('qr-reader-results').innerHTML = '';
   document.getElementById('send-result').style.display = 'none';
