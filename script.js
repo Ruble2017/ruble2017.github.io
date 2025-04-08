@@ -200,12 +200,13 @@ function updateUI() {
  */
 function sendResults() {
 
-  console.log('Отправка результатов:', scanResults);
+  console.log('результат:', scanResults);
 
   if (scanResults.length === 0) return;
   const resultsText = scanResults.join('\n');
   if (isTelegram) {
     Telegram.WebApp.sendData(resultsText);
+    console.log('Отправлено в Telegram:', resultsText);
     //Telegram.WebApp.close();
   } else {
     alert(`Результаты:\n${resultsText}`);
