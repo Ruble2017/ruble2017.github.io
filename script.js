@@ -157,7 +157,7 @@ function updateTelegramButton() {
  * Обработка ошибок сканирования
  */
 function onScanError(error) {
-  console.warn('Ошибка сканирования:', error);
+  //console.warn('Ошибка сканирования:', error);
 }
 
 /**
@@ -199,11 +199,14 @@ function updateUI() {
  * Отправка результатов
  */
 function sendResults() {
+
+  console.log('Отправка результатов:', scanResults);
+
   if (scanResults.length === 0) return;
   const resultsText = scanResults.join('\n');
   if (isTelegram) {
     Telegram.WebApp.sendData(resultsText);
-    //Telegram.WebApp.close();
+    Telegram.WebApp.close();
   } else {
     alert(`Результаты:\n${resultsText}`);
     resetResults();
