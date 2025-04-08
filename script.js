@@ -207,7 +207,7 @@ function sendResults() {
   if (isTelegram) {
     Telegram.WebApp.sendData(resultsText);
     console.log('Отправлено в Telegram:', resultsText);
-    //Telegram.WebApp.close();
+    Telegram.WebApp.close();
   } else {
     alert(`Результаты:\n${resultsText}`);
     resetResults();
