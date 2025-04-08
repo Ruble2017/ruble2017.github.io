@@ -188,11 +188,16 @@ scan-corner-tr {
   background: var(--tg-theme-secondary-bg-color, #eee);
   border-radius: var(--button-radius);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Ensure content stays within the panel */
 }
 
 .result-panel span {
   font-size: 14px;
   color: var(--tg-theme-text-color, #333);
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Add ellipsis for long text */
+  max-width: calc(100% - 80px); /* Reserve space for the delete button */
 }
 
 .delete-button {
@@ -204,6 +209,7 @@ scan-corner-tr {
   cursor: pointer;
   font-size: 12px;
   transition: background-color 0.2s;
+  flex-shrink: 0; /* Prevent the button from shrinking */
 }
 
 .delete-button:hover {
