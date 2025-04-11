@@ -1,6 +1,6 @@
 // Глобальные переменные
 let html5QrCode;
-let currentCamera = 'environment';
+let currentCamera = 'environment'; // Use the main (rear) camera by default
 let scanResults = [];
 let isTelegram = false;
 let isScanning = false;
@@ -25,7 +25,6 @@ function initApp() {
  */
 function setupButtons() {
   const buttonActions = {
-    'toggle-camera': toggleCamera,
     'stop-scan': stopScanner,
     'start-scan': startScanner,
     'send-result': sendResults
@@ -150,14 +149,7 @@ function stopScanner() {
   }).catch(err => console.error("Ошибка при остановке:", err));
 }
 
-/**
- * Переключение между камерами
- */
-function toggleCamera() {
-  stopScanner();
-  currentCamera = currentCamera === 'environment' ? 'user' : 'environment';
-  setTimeout(startScanner, 300);
-}
+// Remove the toggleCamera function
 
 /**
  * Обработка успешного сканирования

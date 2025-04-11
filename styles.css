@@ -154,7 +154,7 @@ scan-corner-tr {
 }
 
 #toggle-camera {
-  background: #666;
+  display: none; /* Ensure the button is hidden if still present */
 }
 
 #stop-scan {
