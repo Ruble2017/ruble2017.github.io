@@ -122,22 +122,27 @@ scan-corner-tr {
 
 .scan-controls {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: column; /* Align buttons vertically */
+  gap: 8px; /* Add spacing between buttons */
+  justify-content: center; /* Center buttons vertically */
+  align-items: stretch; /* Ensure buttons take full width */
   margin: 16px auto;
   width: 100%;
   max-width: 300px;
 }
 
 .scan-controls button {
-  width: 100%;
+  width: 100%; /* Ensure all buttons have the same width */
+  height: 48px; /* Set a consistent height for all buttons */
   padding: var(--button-padding);
   border: none;
   border-radius: var(--button-radius);
   font-size: 16px;
   cursor: pointer;
   color: white;
-  transition: opacity 0.2s, background-color 0.2s; /* Added hover effect */
+  transition: opacity 0.2s, background-color 0.2s;
+  box-sizing: border-box;
+  margin: 0; /* Remove any extra margins */
 }
 
 .scan-controls button:hover {
@@ -225,3 +230,13 @@ scan-corner-tr {
     padding: 8px;
   }
 }
+
+#barcode-button {
+  background: #4CAF50;
+  margin: 0; /* Ensure no extra margin for this button */
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%; /* Match the width of other buttons */
+}
+

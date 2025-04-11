@@ -15,6 +15,7 @@ function initApp() {
     Telegram.WebApp.MainButton.hide();
   }
   setupButtons();
+  setupScanModeButtons(); // Активируем настройку кнопки режима сканирования
   createScanOverlay();
   startScanner();
 }
@@ -33,6 +34,38 @@ function setupButtons() {
     document.getElementById(id).addEventListener('click', action);
   });
   if (isTelegram) Telegram.WebApp.MainButton.onClick(sendResults);
+}
+
+/**
+ * Настройка кнопок режима сканирования
+ */
+function setupScanModeButtons() {
+  const barcodeButton = document.getElementById('barcode-button');
+
+  barcodeButton.addEventListener('click', () => {
+    const isBarcodeMode = barcodeButton.textContent === 'Barcode';
+    barcodeButton.textContent = isBarcodeMode ? 'QRCode' : 'Barcode';
+    updateScanMode(isBarcodeMode ? 'barcode' : 'qrcode');
+  });
+}
+
+/**
+ * Обновление режима сканирования
+ */
+function updateScanMode(mode) {
+  if (!html5QrCode) return;
+
+  const config = {
+    fps: 10,
+    qrbox: mode === 'barcode'
+      ? { width: 250, height: 75 } // Прямоугольная рамка для штрих-кодов
+      : { width: 250, height: 250 }, // Квадратная рамка для QR-кодов
+    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+    aspectRatio: 1.0
+  };
+
+  stopScanner();
+  setTimeout(() => startCamera(config), 300);
 }
 
 /**
