@@ -1,0 +1,242 @@
+:root {
+  --tg-theme-bg-color: #ffffff;
+  --tg-theme-text-color: #000000;
+  --tg-theme-button-color: #0088cc;
+  --tg-theme-secondary-bg-color: #f0f0f0;
+  --button-radius: 8px;
+  --button-padding: 12px;
+  --corner-size: 30px;
+  --corner-width: 6px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: var(--tg-theme-bg-color, #f5f5f5);
+  color: var(--tg-theme-text-color, #333);
+  min-height: 100vh;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--tg-theme-text-color);
+}
+
+#user-greeting {
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #999);
+}
+
+#scanner-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+#qr-reader {
+  width: 100%;
+  height: 60vh; /* Adjusted for better responsiveness */
+  max-height: 300px;
+  max-width: 300px;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--tg-theme-secondary-bg-color, #eee);
+  position: relative;
+}
+
+.scan-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  border: 4px solid rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+}
+
+.scan-corner {
+  position: absolute;
+  width: var(--corner-size);
+  height: var(--corner-size);
+  border-color: #fff;
+  border-style: solid;
+  border-width: 0;
+}
+
+.scan-corner-tl {
+  top: -2px;
+  left: -2px;
+  border-top-width: var(--corner-width);
+  border-left-width: var(--corner-width);
+}
+
+scan-corner-tr {
+  top: -2px;
+  right: -2px;
+  border-top-width: var(--corner-width);
+  border-right-width: var(--corner-width);
+}
+
+.scan-corner-bl {
+  bottom: -2px;
+  left: -2px;
+  border-bottom-width: var(--corner-width);
+  border-left-width: var(--corner-width);
+}
+
+.scan-corner-br {
+  bottom: -2px;
+  right: -2px;
+  border-bottom-width: var(--corner-width);
+  border-right-width: var(--corner-width);
+}
+
+.results {
+  margin: 16px auto;
+  padding: 12px;
+  width: 100%;
+  max-width: 300px;
+  background: var(--tg-theme-secondary-bg-color, #eee);
+  border-radius: var(--button-radius);
+  min-height: 50px;
+}
+
+.scan-controls {
+  display: flex;
+  flex-direction: column; /* Align buttons vertically */
+  gap: 8px; /* Add spacing between buttons */
+  justify-content: center; /* Center buttons vertically */
+  align-items: stretch; /* Ensure buttons take full width */
+  margin: 16px auto;
+  width: 100%;
+  max-width: 300px;
+}
+
+.scan-controls button {
+  width: 100%; /* Ensure all buttons have the same width */
+  height: 48px; /* Set a consistent height for all buttons */
+  padding: var(--button-padding);
+  border: none;
+  border-radius: var(--button-radius);
+  font-size: 16px;
+  cursor: pointer;
+  color: white;
+  transition: opacity 0.2s, background-color 0.2s;
+  box-sizing: border-box;
+  margin: 0; /* Remove any extra margins */
+}
+
+.scan-controls button:hover {
+  opacity: 0.9; /* Hover effect */
+}
+
+.scan-controls button:active {
+  opacity: 0.8;
+}
+
+#toggle-camera {
+  display: none; /* Ensure the button is hidden if still present */
+}
+
+#stop-scan {
+  background: #ff3333;
+  display: none;
+}
+
+#start-scan {
+  background: #4CAF50;
+  display: none;
+}
+
+#send-result {
+  background: var(--tg-theme-button-color, #0088cc);
+  display: none;
+}
+
+.error {
+  color: #ff3333;
+}
+
+.scanner-active #stop-scan {
+  display: block;
+}
+
+.scanner-inactive #start-scan {
+  display: block;
+}
+
+.result-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: var(--tg-theme-secondary-bg-color, #eee);
+  border-radius: var(--button-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Ensure content stays within the panel */
+}
+
+.result-panel span {
+  font-size: 14px;
+  color: var(--tg-theme-text-color, #333);
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Add ellipsis for long text */
+  max-width: calc(100% - 80px); /* Reserve space for the delete button */
+}
+
+.delete-button {
+  background: #ff3333;
+  color: white;
+  border: none;
+  border-radius: var(--button-radius);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+  flex-shrink: 0; /* Prevent the button from shrinking */
+}
+
+.delete-button:hover {
+  background: #cc0000;
+}
+
+@media (max-width: 600px) {
+  #qr-reader {
+    height: 70vh; /* Adjusted for smaller screens */
+  }
+
+  .container {
+    padding: 8px;
+  }
+}
+
+#barcode-button {
+  background: #4CAF50;
+  margin: 0; /* Ensure no extra margin for this button */
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%; /* Match the width of other buttons */
+}
+

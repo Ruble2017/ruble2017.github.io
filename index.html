@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR/Barcode Scanner</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://telegram.org/js/telegram-web-app.js" defer></script>
+  <script src="https://unpkg.com/html5-qrcode" defer></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔍 Сканер QR/штрих-кодов</h1>      
+    </header>
+    
+    <main>
+      <section id="scanner-container">
+        <div id="qr-reader"></div>
+      </section>      
+      
+      <section id="qr-reader-results" class="results"></section>
+      
+      <section class="scan-controls">
+        <button id="barcode-button" aria-label="Переключить режим сканирования">Barcode</button>
+        <button id="stop-scan" aria-label="Остановить сканирование">⏹ Остановить сканирование</button>
+        <button id="start-scan" aria-label="Начать сканирование">▶ Начать сканирование</button>
+        <button id="send-result" aria-label="Отправить результат">Отправить результат</button>
+      </section>
+    </main>
+  </div>
+  <script src="script.js" defer></script>
+</body>
+</html>
