@@ -42,9 +42,9 @@ function setupScanModeButtons() {
   const barcodeButton = document.getElementById('barcode-button');
 
   barcodeButton.addEventListener('click', () => {
-    const isBarcodeMode = barcodeButton.textContent === 'Barcode';
-    barcodeButton.textContent = isBarcodeMode ? 'QRCode' : 'Barcode';
-    updateScanMode(isBarcodeMode ? 'barcode' : 'qrcode');
+    const isBarcodeMode = barcodeButton.textContent === 'QRCode';
+    barcodeButton.textContent = isBarcodeMode ? 'Barcode' : 'QRCode';
+    updateScanMode(isBarcodeMode ? 'qrcode' : 'barcode');
   });
 }
 
@@ -56,9 +56,9 @@ function updateScanMode(mode) {
 
   const config = {
     fps: 10,
-    qrbox: mode === 'barcode'
-      ? { width: 250, height: 75 } // Прямоугольная рамка для штрих-кодов
-      : { width: 250, height: 250 }, // Квадратная рамка для QR-кодов
+    qrbox: mode === 'qrcode'
+      ? { width: 250, height: 250 } // Прямоугольная рамка для штрих-кодов
+      : { width: 250, height: 75 }, // Квадратная рамка для QR-кодов
     supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
     aspectRatio: 1.0
   };
@@ -89,7 +89,7 @@ function startScanner() {
   html5QrCode = new Html5Qrcode('qr-reader');
   const config = { 
     fps: 10,
-    qrbox: { width: 250, height: 250 },
+    qrbox: { width: 250, height: 75 },
     supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
     aspectRatio: 1.0
   };
